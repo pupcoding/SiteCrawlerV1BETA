@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PINKSTAR // Toolkit</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --pink:#ff2e88;--pink-l:#ffb3d9;--red:#c1121f;--ink:#050506;
+  --panel:#0a0a0d;--line:#2a0d1a;--dim:#8b8b96;--ok:#2ee87a;--warn:#ffc02e;--fail:#ff3b5c;
+}
+html,body{margin:0}
+body{background:var(--ink);color:#e9e9f0;font:14px/1.55 ui-monospace,"JetBrains Mono",Consolas,monospace;overflow-x:hidden}
+.scan{position:fixed;inset:0;pointer-events:none;z-index:98;opacity:.45;
+  background:repeating-linear-gradient(180deg,rgba(255,46,136,.06) 0 1px,transparent 1px 3px)}
+header{position:relative;padding:22px 18px 26px;border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(120% 90% at 15% 0%,rgba(255,46,136,.22),transparent 60%),
+    repeating-linear-gradient(180deg,rgba(255,46,136,.05) 0 3px,transparent 3px 7px),#070708}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:56px;height:56px;filter:drop-shadow(0 0 14px rgba(255,46,136,.65));flex:0 0 auto}
+h1{margin:0;font-size:26px;letter-spacing:3px;line-height:1;
+  background:linear-gradient(180deg,var(--pink-l),var(--pink) 55%,var(--red));
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+h1 span{display:block;font-size:11px;letter-spacing:5px;color:#7d7d88;-webkit-text-fill-color:#7d7d88;margin-top:7px}
+.sub{margin:12px 0 0;font-size:12px;color:var(--dim);letter-spacing:.5px}
+nav{display:flex;gap:2px;border-bottom:1px solid var(--line);background:#070708;position:sticky;top:0;z-index:40}
+nav button{flex:1;padding:13px 8px;background:none;border:0;border-bottom:3px solid transparent;
+  color:#7c7c88;font:inherit;font-size:11.5px;letter-spacing:2.5px;cursor:pointer;transition:.15s}
+nav button:hover{color:var(--pink-l);background:rgba(255,46,136,.06)}
+nav button.on{color:#fff;border-bottom-color:var(--pink);background:rgba(255,46,136,.1)}
+main{padding:18px;max-width:1080px;margin:0 auto}
+section{display:none;animation:fade .22s ease}
+section.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:12px;letter-spacing:3px;color:var(--pink);text-transform:uppercase}
+.card p.hint{margin:0 0 14px;font-size:11.5px;color:var(--dim)}
+label{display:block;font-size:10.5px;letter-spacing:2px;color:#9a9aa6;margin:0 0 6px;text-transform:uppercase}
+input[type=text],input[type=url],textarea,select{
+  width:100%;padding:10px 11px;background:#0d0d11;border:1px solid #24242c;border-radius:3px;
+  color:#f0f0f5;font:inherit;font-size:13px;outline:0;transition:.15s}
+input:focus,textarea:focus,select:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,46,136,.13)}
+textarea{resize:vertical;min-height:74px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.row>div{flex:1;min-width:150px}
+.btn{padding:11px 18px;border:0;border-radius:3px;font:inherit;font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;transition:.15s}
+.btn.primary{background:linear-gradient(180deg,var(--pink),var(--red));color:#fff;font-weight:700}
+.btn.primary:hover{filter:brightness(1.15);box-shadow:0 0 18px rgba(255,46,136,.45)}
+.btn.ghost{background:#111116;color:#b9b9c4;border:1px solid #2b2b35}
+.btn.ghost:hover{border-color:var(--pink);color:var(--pink-l)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid #24242c;border-radius:99px;
+  font-size:11px;color:#9a9aa6;cursor:pointer;user-select:none;background:#0d0d11}
+.chip input{accent-color:var(--pink);margin:0}
+.chip:has(input:checked){border-color:var(--pink);color:#fff;background:rgba(255,46,136,.13)}
+#term{background:#000;border:1px solid var(--line);border-radius:3px;padding:12px;min-height:180px;
+  max-height:380px;overflow:auto;font-size:12px;line-height:1.65}
+#term .ln{display:flex;gap:8px;padding:3px 0;border-bottom:1px dotted #14141a}
+#term .tag{flex:0 0 auto;font-weight:700;font-size:10px;padding:1px 6px;border-radius:2px;height:16px}
+.t-ok .tag{background:rgba(46,232,122,.15);color:var(--ok)}
+.t-warn .tag{background:rgba(255,192,46,.15);color:var(--warn)}
+.t-fail .tag{background:rgba(255,59,92,.16);color:var(--fail)}
+.t-info .tag{background:rgba(255,46,136,.15);color:var(--pink)}
+.t-ok .txt{color:#cfd6d1}.t-warn .txt{color:#e7dcb9}.t-fail .txt{color:#ffb9c4}
+#term .who{color:#6d6d79}
+#term .who::after{content:":"}
+.score{display:flex;align-items:center;gap:16px;padding:14px;border:1px solid var(--line);border-radius:4px;
+  background:#0b0b0f;margin-bottom:14px}
+#grade{font-size:38px;font-weight:800;line-height:1;letter-spacing:-1px}
+#num{font-size:13px;color:var(--dim)}
+.bar{flex:1;height:7px;background:#191920;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;transition:width .5s ease;background:var(--pink)}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.thumb{position:relative;width:78px;height:78px;border:1px solid #2b2b35;border-radius:3px;overflow:hidden;background:#000}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb b{position:absolute;top:2px;right:2px;width:18px;height:18px;display:grid;place-items:center;
+  background:rgba(0,0,0,.8);border:1px solid #333;border-radius:2px;color:var(--fail);cursor:pointer;font-size:11px}
+#preview{width:100%;height:460px;border:1px solid var(--line);border-radius:3px;background:#000}
+details{border:1px solid var(--line);border-radius:3px;margin-bottom:8px;background:#0b0b0f}
+details[open]{border-color:#3a1524}
+summary{padding:11px 13px;cursor:pointer;font-size:12px;letter-spacing:1.5px;color:var(--pink-l);list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+ ";color:var(--pink)}
+details[open] summary::before{content:"− "}
+details .body{padding:0 14px 14px;font-size:12.5px;color:#b6b6c1}
+details ol{margin:8px 0;padding-left:20px}
+details li{margin-bottom:7px}
+code{background:#15151b;border:1px solid #26262f;padding:1px 5px;border-radius:2px;color:var(--pink-l);font-size:12px}
+pre{background:#000;border:1px solid var(--line);padding:11px;overflow:auto;border-radius:3px;font-size:11.5px;color:#c9c9d2}
+.stripes{height:6px;background:repeating-linear-gradient(90deg,var(--pink) 0 9px,transparent 9px 15px);opacity:.75}
+footer{padding:22px 18px 40px;color:#5d5d68;font-size:11px;text-align:center;border-top:1px solid var(--line);margin-top:20px}
+.glow{color:var(--pink)}
+#errbar{position:fixed;left:0;right:0;bottom:0;z-index:200;background:#1a0409;border-top:2px solid var(--fail);
+  padding:10px 14px;font-size:11.5px;color:#ffc3ce;max-height:34vh;overflow:auto}
+#errbar b{color:var(--fail);letter-spacing:2px}
+#errbar ul{margin:6px 0;padding-left:18px}
+#errbar li{margin-bottom:4px;word-break:break-word}
+#errbar button{background:#3a0a14;border:1px solid var(--fail);color:#ffc3ce;font:inherit;font-size:10px;
+  padding:3px 9px;border-radius:2px;cursor:pointer;letter-spacing:1px}
+@media(max-width:560px){h1{font-size:20px}.logo{width:44px;height:44px}#preview{height:360px}}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+
+<header>
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 100 100" aria-label="logo">
+      <defs>
+        <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffd0e8"/><stop offset=".45" stop-color="#ff2e88"/><stop offset="1" stop-color="#a50f1b"/>
+        </linearGradient>
+        <clipPath id="ls">
+          <polygon points="50,4 61,37 97,37 68,58 79,94 50,72 21,94 32,58 3,37 39,37"/>
+        </clipPath>
+      </defs>
+      <g clip-path="url(#ls)">
+        <g fill="url(#lg)">
+          <rect x="0" y="4" width="100" height="5"/><rect x="0" y="12" width="100" height="5"/>
+          <rect x="0" y="20" width="100" height="5"/><rect x="0" y="28" width="100" height="5"/>
+          <rect x="0" y="36" width="100" height="5"/><rect x="0" y="44" width="100" height="5"/>
+          <rect x="0" y="52" width="100" height="5"/><rect x="0" y="60" width="100" height="5"/>
+          <rect x="0" y="68" width="100" height="5"/><rect x="0" y="76" width="100" height="5"/>
+          <rect x="0" y="84" width="100" height="5"/><rect x="0" y="92" width="100" height="5"/>
+        </g>
+      </g>
+    </svg>
+    <h1>PINKSTAR<span>TOOLKIT</span></h1>
+  </div>
+  <p class="sub">// checker de vulnerabilidades &nbsp;+&nbsp; gerador de defacement</p>
+</header>
+
+<nav>
+  <button class="on" data-tab="check">CHECKER</button>
+  <button data-tab="crack">CRACKER</button>
+  <button data-tab="guide">GUIA</button>
+</nav>
+
+<main>
+
+<section id="check" class="on">
+  <div class="card">
+    <h2>Alvo</h2>
+    <p class="hint">Cole a URL completa. O scan sai do seu navegador; quando o alvo bloqueia CORS ele passa por proxy público.</p>
+    <div class="row">
+      <div style="flex:3"><input id="target" type="text" placeholder="https://exemplo.com.br" spellcheck="false"></div>
+      <div style="flex:1"><button class="btn primary" id="scanBtn" style="width:100%">ESCANEAR</button></div>
+    </div>
+    <div class="chips">
+      <label class="chip"><input type="checkbox" data-grp="head" checked> headers / TLS</label>
+      <label class="chip"><input type="checkbox" data-grp="html" checked> análise de HTML</label>
+      <label class="chip"><input type="checkbox" data-grp="path" checked> caminhos sensíveis</label>
+      <label class="chip"><input type="checkbox" data-grp="cms" checked> CMS / versões</label>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn ghost" id="clearBtn">LIMPAR</button>
+      <button class="btn ghost" id="reportBtn" disabled>EXPORTAR RELATÓRIO</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Resultado</h2>
+    <div class="score">
+      <div id="grade" style="color:var(--dim)">–</div>
+      <div style="flex:1">
+        <div id="num">score 0 / 100</div>
+        <div class="bar"><i id="barFill"></i></div>
+      </div>
+    </div>
+    <div id="term"><div class="ln t-info"><span class="tag">i</span><span class="txt">aguardando alvo…</span></div></div>
+  </div>
+</section>
+
+<section id="crack">
+  <div class="card">
+    <h2>Payload de defacement</h2>
+    <p class="hint">Preencha, veja o preview e baixe o <code>index.html</code>. Suba por cima do arquivo original depois de fazer backup (aba GUIA).</p>
+    <div class="row">
+      <div><label>alias / assinatura</label><input id="alias" type="text" placeholder="hacked by PINKSTAR" value="PINKSTAR"></div>
+      <div><label>título da aba</label><input id="ptitle" type="text" placeholder="HACKED BY PINKSTAR"></div>
+    </div>
+    <div class="row">
+      <div><label>mensagem</label><textarea id="msg" placeholder="Sua mensagem aqui...">Este site foi pwned. Corrija suas falhas e volte a dormir tranquilo.</textarea></div>
+    </div>
+    <div class="row">
+      <div><label>link (opcional)</label><input id="plink" type="text" placeholder="https://t.me/seucanal"></div>
+      <div><label>efeito</label><select id="fx">
+        <option value="matrix">matrix</option>
+        <option value="glitch">glitch</option>
+        <option value="scan">scanlines</option>
+        <option value="none">nenhum</option>
+      </select></div>
+      <div><label>cor de destaque</label><input id="accent" type="color" value="#ff2e88" style="height:38px;padding:2px"></div>
+      <div><label>fundo</label><input id="bg" type="color" value="#000000" style="height:38px;padding:2px"></div>
+    </div>
+    <label>imagens</label>
+    <div class="row">
+      <div><input id="imgUrl" type="text" placeholder="cole a URL da imagem e pressione Enter"></div>
+      <div style="flex:0 0 auto"><label style="opacity:0">up</label><input id="imgFile" type="file" accept="image/*" multiple style="font-size:11px;padding:8px"></div>
+    </div>
+    <div class="thumbs" id="thumbs"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn primary" id="dlBtn">BAIXAR index.html</button>
+      <button class="btn ghost" id="copyBtn">COPIAR HTML</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Preview</h2>
+    <iframe id="preview" sandbox="allow-scripts" title="preview"></iframe>
+  </div>
+</section>
+
+<section id="guide">
+  <div class="card">
+    <h2>Antes de tudo</h2>
+    <p class="hint">Regra de ouro: backup. Baixe o <code>index.html</code> original (e o <code>.htaccess</code>) antes de mexer em qualquer coisa.</p>
+    <ol style="font-size:12.5px;color:#b6b6c1;padding-left:20px">
+      <li>Baixe o arquivo original do servidor.</li>
+      <li>Renomeie para <code>index.html.bak</code> no servidor.</li>
+      <li>Só então suba o payload como <code>index.html</code>.</li>
+      <li>Teste em aba anônima e force refresh (Ctrl+F5) — CDN serve versão velha.</li>
+    </ol>
+  </div>
+
+  <details>
+    <summary>cPanel — Gerenciador de Arquivos</summary>
+    <div class="body">
+      <ol>
+        <li>Entre no cPanel (<code>/cpanel</code> ou <code>:2083</code>).</li>
+        <li><b>Gerenciador de Arquivos</b> → <code>public_html</code>.</li>
+        <li><code>index.html</code> ou <code>index.php</code> → botão direito → <b>Renomear</b> → <code>index.html.bak</code>.</li>
+        <li><b>Upload</b> → envie o seu arquivo → renomeie para <code>index.html</code>.</li>
+        <li>Permissões <code>644</code> em arquivo, <code>755</code> em pasta.</li>
+      </ol>
+    </div>
+  </details>
+
+  <details>
+    <summary>FTP / SFTP (FileZilla)</summary>
+    <div class="body">
+      <ol>
+        <li>Host, usuário e senha vêm do painel de hospedagem (21 FTP, 22 SFTP).</li>
+        <li>Abra o diretório raiz do site (<code>public_html</code>, <code>www</code> ou <code>htdocs</code>).</li>
+        <li>Arraste o arquivo original pro seu PC como backup.</li>
+        <li>Envie o payload e sobrescreva o <code>index.html</code>.</li>
+        <li>Transferência binária pra imagens, ASCII pra HTML.</li>
+      </ol>
+    </div>
+  </details>
+
+  <details>
+    <summary>WordPress — editor de tema</summary>
+    <div class="body">
+      <ol>
+        <li><code>/wp-admin</code> → <b>Aparência → Editor de Arquivos do Tema</b>.</li>
+        <li>Abra <code>index.php</code>, copie o conteúdo e guarde como backup.</li>
+        <li>Cole o HTML do payload e atualize.</li>
+        <li>Imagens: <b>Mídia → Adicionar novo</b> → copie a URL e use no payload.</li>
+        <li>Editor bloqueado? Gerenciador de Arquivos em <code>/wp-content/themes/seu-tema/</code>.</li>
+      </ol>
+    </div>
+  </details>
+
+  <details>
+    <summary>SSH — o jeito rápido</summary>
+    <div class="body">
+      <pre>ssh usuario@host
+cd ~/public_html
+cp index.html index.html.bak
+wget -O index.html https://seu-hospedagem.com/payload.html
+ls -la index.html</pre>
+      <p>Ou <code>scp payload.html usuario@host:~/public_html/index.html</code>.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Onde procurar falhas (checklist manual)</summary>
+    <div class="body">
+      <ol>
+        <li><code>/.env</code>, <code>/.git/config</code>, <code>/backup.zip</code>, <code>/dump.sql</code> acessíveis.</li>
+        <li>WordPress, plugins e jQuery em versões com CVE pública.</li>
+        <li><code>xmlrpc.php</code> aberto (brute force de senha).</li>
+        <li>Admin sem 2FA e <code>wp-login.php</code> sem rate limit.</li>
+        <li>phpMyAdmin ou Adminer expostos.</li>
+        <li>Directory listing ligado (<code>Options +Indexes</code>).</li>
+        <li>Formulários sem HTTPS e sem CSRF token.</li>
+        <li><code>Server:</code> e <code>X-Powered-By</code> revelando versão exata.</li>
+      </ol>
+    </div>
+  </details>
+
+  <div class="card">
+    <h2>Limites do checker</h2>
+    <p class="hint" style="margin:0">Checagem de navegador é heurística: CORS esconde headers, proxy público falha e a maioria das CVEs exige teste ativo (nmap, nuclei, sqlmap). Use como triagem, não como laudo.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>PINKSTAR TOOLKIT <span class="glow">//</span> nada aqui sai do seu navegador</footer>
+
+<div id="errbar" hidden></div>
+
+<script>
+"use strict";
+
+/* ---------- captura de erros ---------- */
+const ERRS=[];
+function trap(msg){
+  ERRS.push(String(msg));
+  const b=document.getElementById("errbar");
+  b.hidden=false;
+  b.innerHTML="";
+  const t=document.createElement("b"); t.textContent="ERROS ("+ERRS.length+")";
+  const ul=document.createElement("ul");
+  ERRS.forEach(m=>{const li=document.createElement("li");li.textContent=m;ul.appendChild(li);});
+  const btn=document.createElement("button"); btn.textContent="COPIAR ERROS";
+  btn.onclick=()=>{navigator.clipboard.writeText(ERRS.join("\n")).then(
+    ()=>{btn.textContent="COPIADO";},()=>{btn.textContent="FALHOU";});};
+  b.append(t,ul,btn);
+}
+window.addEventListener("error",e=>trap((e.message||"erro")+" — "+(e.filename||"")+":"+(e.lineno||"?")));
+window.addEventListener("unhandledrejection",e=>trap("promise: "+((e.reason&&e.reason.message)||e.reason)));
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ---------- tabs ---------- */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("on"));
+  document.querySelectorAll("section").forEach(s=>s.classList.remove("on"));
+  b.classList.add("on");
+  document.getElementById(b.dataset.tab).classList.add("on");
+});
+
+/* =========================================================
+   CHECKER
+   ========================================================= */
+const term=$("#term");
+const state={results:[],score:100};
+
+function line(type,who,txt){
+  const map={ok:"OK",warn:"!",fail:"X",info:"i"};
+  const d=document.createElement("div");
+  d.className="ln t-"+type;
+  const tag=document.createElement("span"); tag.className="tag"; tag.textContent=map[type]||"?";
+  const w=document.createElement("span"); w.className="who"; w.textContent=who;
+  const t=document.createElement("span"); t.className="txt"; t.textContent=txt;
+  d.append(tag,w,t);
+  term.appendChild(d);
+  term.scrollTop=term.scrollHeight;
+  state.results.push({type,who,txt});
+}
+
+async function raw(url,ms){
+  const c=new AbortController();
+  const t=setTimeout(()=>c.abort(),ms||9000);
+  try{
+    const r=await fetch(url,{signal:c.signal,redirect:"follow",mode:"cors",cache:"no-store"});
+    clearTimeout(t);
+    return {status:r.status,text:await r.text(),headers:r.headers};
+  }catch(err){clearTimeout(t);return {status:0,text:"",headers:null};}
+}
+
+const PROXIES=[
+  u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),
+  u=>"https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(u),
+  u=>"https://corsproxy.io/?url="+encodeURIComponent(u),
+  u=>"https://api.cors.lol/?url="+encodeURIComponent(u)
+];
+
+/* mesma origem tenta direto; cross-origin vai de proxy pra não estourar CORS */
+async function grab(u,ms){
+  const same=u.startsWith(location.origin);
+  if(same){
+    const d=await raw(u,ms);
+    if(d.status) return d;
+  }
+  for(const p of PROXIES){
+    const q=await raw(p(u),ms);
+    if(q.status) return q;
+  }
+  return {status:0,text:"",headers:null};
+}
+
+let pageCache=null;
+async function page(t){
+  if(pageCache) return pageCache;
+  pageCache=await grab(t.href,12000);
+  return pageCache;
+}
+
+const probeCache={};
+async function probe(t,path){
+  if(probeCache[path]!==undefined) return probeCache[path];
+  const r=await grab(t.origin+path,8000);
+  probeCache[path]={status:r.status,text:(r.text||"").slice(0,4000)};
+  return probeCache[path];
+}
+
+function addScore(sev,type){
+  state.score=Math.max(0,state.score-(type==="fail"?sev:Math.round(sev/2)));
+  paintScore();
+}
+function paintScore(){
+  const g=$("#grade"),n=$("#num"),f=$("#barFill");
+  const s=state.score;
+  const grade=s>=90?"A":s>=75?"B":s>=60?"C":s>=40?"D":"F";
+  const color=s>=75?"var(--ok)":s>=50?"var(--warn)":"var(--fail)";
+  g.textContent=grade; g.style.color=color;
+  n.textContent="score "+s+" / 100";
+  f.style.width=s+"%"; f.style.background=color;
+}
+
+const CHECKS=[
+ {g:"head",sev:14,who:"tls",run:async t=>{
+   if(t.protocol!=="https:"){line("fail","tls","Sem HTTPS — tráfego em texto puro.");return "fail";}
+   const r=await grab(t.origin+"/",12000);
+   if(!r.status){line("warn","tls","HTTPS presente, certificado não validável pelo navegador.");return "warn";}
+   line("ok","tls","HTTPS respondeu (HTTP "+r.status+").");return "ok";
+ }},
+ {g:"head",sev:12,who:"headers",run:async t=>{
+   const r=await page(t);
+   if(!r.headers){line("info","headers","Headers ocultos por CORS — confira com curl -I.");return "info";}
+   const pairs=[["strict-transport-security","HSTS ausente"],["content-security-policy","CSP ausente"],
+     ["x-frame-options","X-Frame-Options ausente (clickjacking)"],
+     ["x-content-type-options","X-Content-Type-Options ausente"],["referrer-policy","Referrer-Policy ausente"]];
+   let bad=0;
+   pairs.forEach(([k,msg])=>{
+     if(r.headers.get(k)) line("ok","headers",k+" presente.");
+     else {line("warn","headers",msg);bad++;}
+   });
+   const srv=r.headers.get("server"); if(srv) line("info","server","Banner exposto: "+srv);
+   const pw=r.headers.get("x-powered-by"); if(pw) line("warn","xpb","X-Powered-By revela stack: "+pw);
+   return bad>2?"warn":"ok";
+ }},
+ {g:"head",sev:10,who:"cookies",run:async t=>{
+   const r=await page(t);
+   if(!r.headers){line("info","cookies","Cookies não legíveis via CORS.");return "info";}
+   const sc=r.headers.get("set-cookie");
+   if(!sc){line("info","cookies","Nenhum Set-Cookie na resposta inicial.");return "info";}
+   if(/httponly/i.test(sc)&&/secure/i.test(sc)){line("ok","cookies","Cookie com HttpOnly + Secure.");return "ok";}
+   line("warn","cookies","Cookie sem HttpOnly e/ou Secure.");return "warn";
+ }},
+ {g:"html",sev:10,who:"form",run:async t=>{
+   const r=await page(t); if(!r.text){line("info","form","HTML não obtido.");return "info";}
+   const forms=(r.text.match(/<form/gi)||[]).length;
+   const insecure=(r.text.match(/action\s*=\s*["']http:\/\//gi)||[]).length;
+   if(!forms){line("info","form","Nenhum formulário na página.");return "info";}
+   if(insecure){line("fail","form",insecure+" formulário(s) enviando pra HTTP puro.");return "fail";}
+   line("ok","form",forms+" formulário(s), todos em HTTPS.");return "ok";
+ }},
+ {g:"html",sev:6,who:"blank",run:async t=>{
+   const r=await page(t); if(!r.text) return "info";
+   const m=r.text.match(/<a[^>]+target=["']_blank["'][^>]*>/gi)||[];
+   if(!m.length){line("info","blank","Sem links target=_blank.");return "info";}
+   const bad=m.filter(a=>!/rel=["'][^"']*noopener/i.test(a)).length;
+   if(bad){line("warn","blank",bad+" link(s) target=_blank sem rel=noopener.");return "warn";}
+   line("ok","blank","Links externos com noopener.");return "ok";
+ }},
+ {g:"html",sev:8,who:"mixed",run:async t=>{
+   if(t.protocol!=="https:"){line("info","mixed","Não aplicável.");return "info";}
+   const r=await page(t); if(!r.text){line("info","mixed","HTML não obtido.");return "info";}
+   const m=(r.text.match(/(?:src|href)=["']http:\/\/[^"']+/gi)||[]).length;
+   if(m){line("fail","mixed",m+" recurso(s) por HTTP em página HTTPS (mixed content).");return "fail";}
+   line("ok","mixed","Nenhum mixed content.");return "ok";
+ }},
+ {g:"html",sev:7,who:"leak",run:async t=>{
+   const r=await page(t); if(!r.text){line("info","leak","HTML não obtido.");return "info";}
+   const emails=[...new Set(r.text.match(/[\w.+-]+@[\w-]+\.[\w.]{2,}/g)||[])].slice(0,4);
+   const comments=(r.text.match(/<!--[\s\S]{4,200}?-->/g)||[]).filter(c=>!/\[if|endif|wp:/.test(c)).length;
+   let bad=0;
+   if(emails.length){line("warn","leak","E-mails em claro: "+emails.join(", "));bad++;}
+   if(comments>4){line("warn","leak",comments+" comentários HTML (caminhos/TODOs vazando).");bad++;}
+   if(!bad) line("ok","leak","Sem e-mails ou comentários vazando info.");
+   return bad?"warn":"ok";
+ }},
+ {g:"html",sev:5,who:"inline",run:async t=>{
+   const r=await page(t); if(!r.text){line("info","inline","HTML não obtido.");return "info";}
+   const m=(r.text.match(/<script(?![^>]*src=)[^>]*>/gi)||[]).length;
+   if(m>10){line("warn","inline",m+" scripts inline (CSP fraca, XSS facilitado).");return "warn";}
+   line("ok","inline",m+" script(s) inline — dentro do normal.");return "ok";
+ }},
+ {g:"cms",sev:12,who:"cms",run:async t=>{
+   const r=await page(t); const html=r.text||"";
+   const gen=(html.match(/<meta[^>]+name=["']generator["'][^>]+content=["']([^"']+)/i)||[])[1];
+   if(gen) line("info","cms","Generator: "+gen);
+   if(/wp-content|wp-includes/i.test(html)){
+     const v=(html.match(/ver=([\d.]+)/)||[])[1];
+     line("warn","cms","WordPress detectado"+(v?" (asset ver="+v+")":"")+" — versão exposta nos assets.");
+     return "warn";
+   }
+   if(/drupal/i.test(html)){line("warn","cms","Drupal detectado.");return "warn";}
+   if(/joomla/i.test(html)){line("warn","cms","Joomla detectado.");return "warn";}
+   line("info","cms","CMS não identificado pelo HTML.");return "info";
+ }},
+ {g:"cms",sev:8,who:"jquery",run:async t=>{
+   const r=await page(t); if(!r.text){line("info","jquery","HTML não obtido.");return "info";}
+   const m=(r.text.match(/jquery[.-]?([\d.]+)(?:\.min)?\.js/i)||[])[1];
+   if(!m){line("info","jquery","jQuery não referenciado.");return "info";}
+   const major=parseInt(m,10)||0, minor=parseInt((m.split(".")[1]||"0"),10)||0;
+   if(major<3||(major===3&&minor<5)){
+     line("fail","jquery","jQuery "+m+" — versão antiga com XSS conhecido (CVE-2020-11022/11023).");return "fail";}
+   line("ok","jquery","jQuery "+m+".");return "ok";
+ }},
+ {g:"path",sev:20,who:"env",run:async t=>{
+   const r=await probe(t,"/.env");
+   if(r.status===200&&/APP_KEY|DB_|APP_ENV|MAIL_PASSWORD/.test(r.text)){
+     line("fail","env","/.env EXPOSTO — credenciais de banco e chaves de app.");return "fail";}
+   line("info","env","/.env não exposto ("+(r.status||"sem resposta")+").");return "info";
+ }},
+ {g:"path",sev:16,who:"git",run:async t=>{
+   const r=await probe(t,"/.git/config");
+   if(r.status===200&&/\[core\]|repositoryformatversion/.test(r.text)){
+     line("fail","git","/.git/ EXPOSTO — código-fonte recuperável (git-dumper).");return "fail";}
+   line("info","git","/.git/ não exposto ("+(r.status||"sem resposta")+").");return "info";
+ }},
+ {g:"path",sev:14,who:"admin",run:async t=>{
+   const r=await probe(t,"/admin/");
+   if(r.status===200&&/admin|login|senha|password/i.test(r.text)){
+     line("warn","admin","/admin/ acessível — painel exposto à internet.");return "warn";}
+   line("info","admin","/admin/ não encontrado ("+(r.status||"sem resposta")+").");return "info";
+ }},
+ {g:"path",sev:12,who:"phpinfo",run:async t=>{
+   const r=await probe(t,"/phpinfo.php");
+   if(r.status===200&&/PHP Version|phpinfo\(\)/i.test(r.text)){
+     line("fail","phpinfo","phpinfo.php EXPOSTO — vaza caminhos, módulos e config.");return "fail";}
+   line("info","phpinfo","phpinfo.php não exposto ("+(r.status||"sem resposta")+").");return "info";
+ }},
+ {g:"path",sev:15,who:"xmlrpc",run:async t=>{
+   const r=await probe(t,"/xmlrpc.php");
+   if(r.status===200&&/XML-RPC server accepts POST/i.test(r.text)){
+     line("warn","xmlrpc","xmlrpc.php ativo — vetor de brute force e pingback SSRF.");return "warn";}
+   line("info","xmlrpc","xmlrpc.php inativo ("+(r.status||"sem resposta")+").");return "info";
+ }},
+ {g:"path",sev:10,who:"robots",run:async t=>{
+   const r=await probe(t,"/robots.txt");
+   if(r.status===200&&/user-agent/i.test(r.text)){
+     const dis=(r.text.match(/disallow:\s*\S+/gi)||[]).length;
+     if(dis>3){line("warn","robots",dis+" caminhos ocultos listados no robots.txt.");return "warn";}
+     line("ok","robots","robots.txt presente, sem segredos óbvios.");return "ok";
+   }
+   line("info","robots","robots.txt ausente ("+(r.status||"sem resposta")+").");return "info";
+ }},
+ {g:"path",sev:12,who:"backup",run:async t=>{
+   for(const p of ["/backup.zip","/site.zip","/dump.sql","/backup.sql"]){
+     const r=await probe(t,p);
+     if(r.status===200&&r.text.length>200){
+       line("fail","backup",p+" EXPOSTO — backup baixável ("+r.text.length+"b lidos).");return "fail";}
+   }
+   line("info","backup","Nenhum backup comum encontrado.");return "info";
+ }}
+];
+
+$("#scanBtn").onclick=async()=>{
+  const v=$("#target").value.trim();
+  if(!v) return;
+  let url;
+  try{ url=new URL(/^https?:\/\//i.test(v)?v:"https://"+v); }
+  catch(e){ alert("URL inválida"); return; }
+
+  pageCache=null;
+  Object.keys(probeCache).forEach(k=>delete probeCache[k]);
+  state.results=[]; state.score=100; paintScore();
+  term.innerHTML=""; $("#reportBtn").disabled=true; $("#scanBtn").disabled=true;
+
+  const groups=[...document.querySelectorAll(".chip input:checked")].map(c=>c.dataset.grp);
+  line("info","alvo",url.href);
+  line("info","modo","grupos: "+(groups.join(", ")||"nenhum"));
+  await sleep(150);
+
+  for(const c of CHECKS){
+    if(!groups.includes(c.g)) continue;
+    let res="info";
+    try{ res=(await c.run(url))||"info"; }
+    catch(e){ line("info",c.who,"falha na checagem: "+e.message); }
+    if(res==="fail"||res==="warn") addScore(c.sev,res);
+    await sleep(60);
+  }
+
+  line("info","fim",state.results.filter(r=>r.type==="fail").length+" falha(s), "+
+    state.results.filter(r=>r.type==="warn").length+" alerta(s).");
+  $("#scanBtn").disabled=false; $("#reportBtn").disabled=false;
+};
+
+$("#clearBtn").onclick=()=>{
+  term.innerHTML="";
+  line("info","alvo","aguardando…");
+  state.results=[]; state.score=100; paintScore(); $("#reportBtn").disabled=true;
+};
+
+$("#reportBtn").onclick=()=>{
+  const tag={ok:"[OK]  ",warn:"[!]   ",fail:"[FAIL]",info:"[i]   "};
+  let out="# Relatório PINKSTAR\n\nalvo: "+$("#target").value.trim()+"\ndata: "+new Date().toISOString()+
+    "\nscore: "+state.score+"/100\n\n";
+  state.results.forEach(r=>{out+=(tag[r.type]||"[?]")+" "+r.who+" — "+r.txt+"\n";});
+  out+="\n# Heurística via navegador. Confirme com nmap/nuclei/curl -I.\n";
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([out],{type:"text/markdown"}));
+  a.download="relatorio-pinkstar-"+Date.now()+".md";
+  a.click();
+};
+
+/* =========================================================
+   CRACKER
+   ========================================================= */
+const images=[];
+const thumbs=$("#thumbs");
+
+function renderThumbs(){
+  thumbs.innerHTML="";
+  images.forEach((src,i)=>{
+    const d=document.createElement("div"); d.className="thumb";
+    const im=document.createElement("img"); im.src=src; im.alt="";
+    const b=document.createElement("b"); b.textContent="×";
+    b.onclick=()=>{images.splice(i,1);renderThumbs();safeUpdate();};
+    d.append(im,b); thumbs.append(d);
+  });
+}
+
+$("#imgUrl").addEventListener("keydown",e=>{
+  if(e.key!=="Enter") return;
+  const v=e.target.value.trim(); if(!v) return;
+  images.push(v); e.target.value=""; renderThumbs(); safeUpdate();
+});
+$("#imgFile").addEventListener("change",e=>{
+  Array.from(e.target.files).forEach(f=>{
+    const fr=new FileReader();
+    fr.onload=()=>{images.push(String(fr.result));renderThumbs();safeUpdate();};
+    fr.readAsDataURL(f);
+  });
+});
+
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+function buildStar(accent){
+  let r="";
+  for(let y=4;y<96;y+=8) r+='<rect x="0" y="'+y+'" width="100" height="5"/>';
+  return '<svg viewBox="0 0 100 100" width="86" height="86" aria-hidden="true">'+
+    '<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0" stop-color="#ffd0e8"/><stop offset=".45" stop-color="'+accent+'"/>'+
+    '<stop offset="1" stop-color="#a50f1b"/></linearGradient>'+
+    '<clipPath id="sc"><polygon points="50,4 61,37 97,37 68,58 79,94 50,72 21,94 32,58 3,37 39,37"/></clipPath></defs>'+
+    '<g clip-path="url(#sc)"><g fill="url(#sg)">'+r+'</g></g></svg>';
+}
+
+function buildPayload(){
+  const alias=$("#alias").value||"ANÔNIMO";
+  const msg=$("#msg").value;
+  const link=$("#plink").value.trim();
+  const accent=$("#accent").value;
+  const bg=$("#bg").value;
+  const fx=$("#fx").value;
+  const title=$("#ptitle").value||("HACKED BY "+alias.toUpperCase());
+  const stamp=new Date().toLocaleString("pt-BR");
+
+  const gal=images.length
+    ? '<div class="gal">'+images.map(s=>'<img src="'+s+'" alt="">').join("")+"</div>"
+    : "";
+  const linkHtml=link
+    ? '<a class="lnk" href="'+esc(link)+'" target="_blank" rel="noopener">'+esc(link.replace(/^https?:\/\//,""))+"</a>"
+    : "";
+
+  let headCss="", bodyTail="";
+  if(fx==="scan") headCss='body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9;'+
+    'background:repeating-linear-gradient(180deg,rgba(255,255,255,.06) 0 1px,transparent 1px 3px)}';
+  if(fx==="glitch") headCss='h1{animation:gl .18s steps(2) infinite}'+
+    '@keyframes gl{0%{transform:translate(0)}33%{transform:translate(-2px,1px)}66%{transform:translate(2px,-1px)}100%{transform:translate(0)}}';
+  if(fx==="matrix"){
+    headCss="canvas#mx{position:fixed;inset:0;z-index:0;opacity:.45}";
+    bodyTail='<canvas id="mx"></canvas><script>(function(){'+
+      'var c=document.getElementById("mx");if(!c)return;var x=c.getContext("2d");'+
+      'function rz(){c.width=innerWidth;c.height=innerHeight}rz();addEventListener("resize",rz);'+
+      'var ch="01アイウエオカキクケコサシスセソタチツテト$#@%&*".split(""),col=Math.floor(innerWidth/14),'+
+      'y=[];for(var i=0;i<col;i++)y.push(1);'+
+      'setInterval(function(){x.fillStyle="rgba(0,0,0,.08)";x.fillRect(0,0,c.width,c.height);'+
+      'x.font="13px monospace";for(var i=0;i<col;i++){x.fillStyle=Math.random()>.96?"#fff":"'+accent+'";'+
+      'x.fillText(ch[Math.floor(Math.random()*ch.length)],i*14,y[i]*14);'+
+      'if(y[i]*14>c.height&&Math.random()>.975)y[i]=0;y[i]++;}},50)})();<\/script>';
+  }
+
+  return "<!DOCTYPE html>\n<html lang=\"pt-BR\"><head><meta charset=\"utf-8\">"+
+    '<meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(title)+"</title><style>"+
+    "*{box-sizing:border-box}html,body{margin:0;min-height:100%}"+
+    "body{background:"+bg+";color:#fff;font:15px/1.6 ui-monospace,Consolas,monospace;"+
+    "display:flex;flex-direction:column;align-items:center;justify-content:center;padding:38px 18px;"+
+    "text-align:center;overflow-x:hidden}"+
+    ".wrap{position:relative;z-index:2;max-width:820px}"+
+    ".stripes{height:7px;background:repeating-linear-gradient(90deg,"+accent+" 0 10px,transparent 10px 16px);"+
+    "margin:16px auto;max-width:260px}"+
+    "h1{margin:14px 0 0;font-size:clamp(26px,7vw,58px);letter-spacing:2px;line-height:1.05;"+
+    "text-transform:uppercase;color:"+accent+";text-shadow:0 0 26px "+accent+"88}"+
+    "h1 small{display:block;font-size:.36em;letter-spacing:6px;color:#fff;opacity:.55;margin-bottom:10px}"+
+    "p.msg{font-size:clamp(13px,2.4vw,17px);max-width:620px;margin:18px auto;opacity:.92;white-space:pre-wrap}"+
+    ".gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:24px 0}"+
+    ".gal img{width:100%;height:150px;object-fit:cover;border:1px solid "+accent+"55;border-radius:3px}"+
+    "a.lnk{display:inline-block;margin-top:10px;padding:9px 18px;border:1px solid "+accent+";color:"+accent+";"+
+    "text-decoration:none;letter-spacing:1px;font-size:12px;border-radius:2px}"+
+    "a.lnk:hover{background:"+accent+";color:#000}"+
+    ".foot{margin-top:26px;font-size:11px;letter-spacing:2px;opacity:.4}"+headCss+"</style></head><body>"+
+    '<div class="wrap">'+buildStar(accent)+
+    "<h1><small>hacked by</small>"+esc(alias)+"</h1><div class=\"stripes\"></div>"+
+    '<p class="msg">'+esc(msg)+"</p>"+gal+linkHtml+
+    '<div class="foot">pwned em '+stamp+"</div></div>"+bodyTail+"</body></html>";
+}
+
+function safeUpdate(){
+  try{ $("#preview").srcdoc=buildPayload(); }
+  catch(e){ trap("preview: "+e.message); }
+}
+
+["alias","msg","plink","accent","bg","fx","ptitle"].forEach(id=>{
+  const el=$("#"+id);
+  el.addEventListener("input",safeUpdate);
+  el.addEventListener("change",safeUpdate);
+});
+
+$("#dlBtn").onclick=()=>{
+  try{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([buildPayload()],{type:"text/html;charset=utf-8"}));
+    a.download="index.html";
+    a.click();
+  }catch(e){ trap("download: "+e.message); }
+};
+
+$("#copyBtn").onclick=async()=>{
+  const b=$("#copyBtn"), old=b.textContent;
+  try{
+    await navigator.clipboard.writeText(buildPayload());
+    b.textContent="COPIADO";
+  }catch(e){
+    b.textContent="FALHOU";
+    trap("clipboard: "+e.message+" (use o download)");
+  }
+  setTimeout(()=>{b.textContent=old;},1500);
+};
+
+paintScore();
+renderThumbs();
+safeUpdate();
+</script>
+</body>
+</html>
